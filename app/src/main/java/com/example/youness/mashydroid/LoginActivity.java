@@ -29,8 +29,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Intent;
 
@@ -187,11 +199,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             Intent intent = new Intent(this, HomeActivity.class);
-            startActivity(intent);
+            //startActivity(intent);
 
-            //showProgress(true);
-           // mAuthTask = new UserLoginTask(email, password);
-           // mAuthTask.execute((Void) null);
+            showProgress(true);
+            mAuthTask = new UserLoginTask(email, password,intent);
+            mAuthTask.execute();
         }
     }
 
@@ -303,10 +315,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private  final Intent mintent;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String email, String password,Intent intent) {
+            this.mEmail = email;
             mPassword = password;
+            mintent = intent;
         }
 
         @Override
@@ -314,22 +328,55 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+                URL url = new URL("http://10.0.2.2:8081/connexion");
+               String urlParameters = GetParameter();
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type",
+                        "application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("Content-Length", "" +
+                        Integer.toString(urlParameters.getBytes().length));
+                urlConnection.setRequestProperty("Content-Language", "en-US");
+
+                urlConnection.setUseCaches (false);
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+
+                //Send request
+                DataOutputStream wr = new DataOutputStream(
+                        urlConnection.getOutputStream ());
+                wr.writeBytes (urlParameters);
+                wr.flush ();
+                wr.close ();
+
+
+                //Get Response
+                InputStream is = urlConnection.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line;
+                StringBuffer response = new StringBuffer();
+                while((line = rd.readLine()) != null) {
+                    response.append(line);
+                    response.append('\r');
+                }
+                rd.close();
+                String result = response.toString();
+
+                JSONObject topLevel = new JSONObject(result);
+                int sucess = topLevel.getInt("sucess");
+                if(sucess > 0) return  true;
+                else return false;
+
+
+
+
+            } catch (java.io.IOException | JSONException e) {
+                e.printStackTrace();
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
 
             // TODO: register the new account here.
-            return true;
+            return false;
         }
 
         @Override
@@ -338,7 +385,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                finish();
+                //Intent intent = new Intent(this, HomeActivity.class);
+                startActivity(mintent);
+                //finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
@@ -349,6 +398,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        private String GetParameter()throws UnsupportedEncodingException
+        {
+            StringBuilder result = new StringBuilder();
+
+            result.append(URLEncoder.encode("Login", "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(this.mEmail, "UTF-8"));
+            result.append("&");
+            result.append(URLEncoder.encode("Password", "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(this.mPassword, "UTF-8"));
+
+            return result.toString();
         }
     }
 }
