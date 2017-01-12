@@ -3,6 +3,7 @@ package com.example.youness.mashydroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -19,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,6 +47,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
+
+import com.example.youness.mashydroid.Business.UserContext;
+import com.example.youness.mashydroid.Model.UserContact;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -95,6 +100,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+
+
+        try {
+            ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = ai.metaData;
+            UserContext.CurrentInstance().ServerUrl = bundle.getString("mashy_server_url");
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("TAG", "Failed to load meta-data, NameNotFound: " + e.getMessage());
+        } catch (NullPointerException e) {
+            Log.e("TAG", "Failed to load meta-data, NullPointer: " + e.getMessage());
+        }
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -328,8 +345,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
 
             try {
-                URL url = new URL("http://10.0.2.2:8081/connexion");
-               String urlParameters = GetParameter();
+                URL url = new URL( UserContext.CurrentInstance().ServerUrl.concat("connexion"));
+
+                String urlParameters = GetParameter();
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type",
@@ -364,7 +382,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 JSONObject topLevel = new JSONObject(result);
                 int sucess = topLevel.getInt("sucess");
-                if(sucess > 0) return  true;
+                if(sucess > 0) {
+
+                        UserContext.CurrentInstance().Login = this.mEmail;
+                        UserContext.CurrentInstance().Password = this.mPassword;
+
+                       JSONArray cercle = topLevel.getJSONObject("message").getJSONArray("cercle");
+
+                        if(cercle != null && cercle.length() > 0)
+                        {
+                         int cpt = cercle.length();
+                            for(int i =0;i<cpt;i++)
+                            {
+                                String tmpLogin = cercle.getJSONObject(i).getString("Login");
+                                boolean tmpActive = cercle.getJSONObject(i).getBoolean("ActiveTracking");
+
+                                UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin,tmpActive));
+                            }
+
+
+
+                        }
+
+
+                    return true;
+                }
                 else return false;
 
 

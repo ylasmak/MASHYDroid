@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.example.youness.mashydroid.Business.UserContext;
 import com.example.youness.mashydroid.Business.UsersAdapter;
 import com.example.youness.mashydroid.Model.UserContact;
 
@@ -24,9 +25,13 @@ public class ContactList extends Fragment {
          View v = inflater.inflate(R.layout.activity_contact_list, container, false);
 
         ArrayList<UserContact> arrayOfUsers = new ArrayList<UserContact>();
-        arrayOfUsers.add(new UserContact("mlasmak@gmail.com",false));
-        arrayOfUsers.add(new UserContact("mlasmak@gmail.com",true));
-        arrayOfUsers.add(new UserContact("mlasmak@gmail.com",false));
+         int cpt = UserContext.CurrentInstance().GetContactList().size();
+
+        for(int i = 0;i< cpt;i++)
+        {
+            UserContact tmp = UserContext.CurrentInstance().GetContactList().get(i);
+            arrayOfUsers.add(tmp);
+        }
 
         UsersAdapter adapter = new UsersAdapter(this.getContext(), arrayOfUsers);
 

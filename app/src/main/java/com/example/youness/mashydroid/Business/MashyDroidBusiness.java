@@ -26,20 +26,12 @@ import java.net.URLEncoder;
 
 public class MashyDroidBusiness {
 
-    public  boolean CheckUserConnextion(String login,String password) throws UnsupportedEncodingException
+    public  boolean MashyProcessing(String login,String password) throws UnsupportedEncodingException
     {
 
-        StringBuilder result = new StringBuilder();
 
-        result.append(URLEncoder.encode("Login", "UTF-8"));
-        result.append("=");
-        result.append(URLEncoder.encode(login, "UTF-8"));
-        result.append("&");
-        result.append(URLEncoder.encode("Password", "UTF-8"));
-        result.append("=");
-        result.append(URLEncoder.encode(password, "UTF-8"));
 
-       new SendPostRequest("").execute("http://localhost;8081/conexion",result.toString());
+       new SendPostRequest("").execute("http://localhost;8081/conexion");
 
       return true;
 

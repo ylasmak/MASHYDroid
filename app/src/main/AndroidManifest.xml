@@ -41,6 +41,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <meta-data android:name="mashy_server_url" android:value="http://10.0.2.2:8081/" />
+
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
