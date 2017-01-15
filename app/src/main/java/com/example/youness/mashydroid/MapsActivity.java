@@ -3,6 +3,9 @@ package com.example.youness.mashydroid;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 
+import com.example.youness.mashydroid.Business.UserContext;
+import com.example.youness.mashydroid.Business.UsersAdapter;
+import com.example.youness.mashydroid.Model.UserContact;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -10,9 +13,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class MapsActivity extends Fragment implements OnMapReadyCallback {
 
@@ -20,7 +27,22 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_maps, container, false);
+
+
+        try {
+            View v = inflater.inflate(R.layout.activity_maps, container, false);
+
+            SupportMapFragment mapFragment = (SupportMapFragment)getFragmentManager().getFragments().get(1).getChildFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+            return  v;
+        }
+        catch (Exception ex)
+        {
+            Log.d("Erreur",ex.getMessage());
+            return  null;
+        }
+
+
     }
 
     /**
@@ -37,8 +59,15 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        //LatLng tmp = new LatLng(33.923439, -6.939421 );
+        //mMap.addMarker(new MarkerOptions().position(tmp).title("Macha Allah"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tmp,15));
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+
+        UserContext.CurrentInstance().mMap = mMap;
+
+
+
     }
 }

@@ -4,10 +4,15 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.youness.mashydroid.HomeActivity;
 import com.example.youness.mashydroid.Model.UserContact;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -118,7 +123,26 @@ public class MashyDroidBusiness {
                                 UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin, tmpActive));
                             }
                         }
+                        JSONArray contactPosition = topLevel.getJSONArray("result");
+                        if(contactPosition !=null && contactPosition.length()> 0) {
+                            for (int i = 0; i < contactPosition.length(); i++) {
+                                String tmpLogin = contactPosition.getJSONObject(i).getString("Login");
+                                JSONArray tmpLoCation =contactPosition.getJSONObject(i).getJSONObject("location").getJSONArray("coordinates");
+                                SetUserLocation(tmpLogin,tmpLoCation);
+                            }
 
+                            //update MAP
+                            //UserContext.CurrentInstance().mMap
+
+                            for(int i =0;i< UserContext.CurrentInstance().GetContactList().size();i++){
+                                UserContact contact  =UserContext.CurrentInstance().GetContactList().get(i);
+
+                                LatLng tmp = new LatLng(contact.Location[0],contact.Location[1] );
+                                UserContext.CurrentInstance().mMap.addMarker(new MarkerOptions().position(tmp).title(contact.Login));
+                                UserContext.CurrentInstance().mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tmp,15));
+
+                             }
+                        }
 
 
                     }
@@ -136,12 +160,43 @@ public class MashyDroidBusiness {
                 }
 
             }
-
-
-
-
         }
+        UserContact contact;
+        private  void SetUserLocation(String login, JSONArray location)  throws JSONException
+        {
 
+            try {
+
+                for (int i = 0; i < UserContext.CurrentInstance().GetContactList().size(); i++) {
+
+                     contact = UserContext.CurrentInstance().GetContactList().get(i);
+                    if (contact.Login.equals(login)) {
+                        contact.Location = new double[]{location.getDouble(0), location.getDouble(1)};
+                        if (contact.mMarcker != null) {
+                            contact.mMarcker.remove();
+                        }
+                        LatLng tmp = new LatLng(contact.Location[0], contact.Location[1]);
+
+                        Handler handler = new Handler(Looper.getMainLooper());
+
+                        handler.post(new Runnable(){
+                                         public void run() {
+                                             //your code
+                                             contact.mMarcker = UserContext.CurrentInstance().mMap.
+                                                     addMarker(new MarkerOptions().position(
+                                                             new LatLng(contact.Location[0], contact.Location[1])).title(contact.Login));
+                                         }
+                                     });
+
+
+
+                    }
+                }
+            }catch (Exception e)
+            {
+                Log.d("Erreur",e.getMessage());
+            }
+        }
 
         private String GetParameter() throws UnsupportedEncodingException, JSONException {
 

@@ -1,6 +1,7 @@
 package com.example.youness.mashydroid.Business;
 
 import com.example.youness.mashydroid.Model.UserContact;
+import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
 
@@ -38,6 +39,8 @@ public class UserContext {
 
     public double[] Location;
     boolean ActiveTracking;
+
+    public GoogleMap mMap;
 
 
 }
