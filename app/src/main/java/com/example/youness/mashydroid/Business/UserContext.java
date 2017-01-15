@@ -37,6 +37,7 @@ public class UserContext {
     }
 
     public double[] Location;
+    boolean ActiveTracking;
 
 
 }

@@ -88,18 +88,33 @@ public class MashyDroidBusiness {
                     String result = response.toString();
 
                     JSONObject topLevel = new JSONObject(result);
+
+
                     int sucess = topLevel.getInt("sucess");
                     if (sucess > 0) {
 
 
-                        JSONArray cercle = topLevel.getJSONObject("message").getJSONArray("cercle");
+
+                        boolean activeTracking = topLevel.getJSONObject("current").getBoolean("activate_tracking");
+                        UserContext.CurrentInstance().ActiveTracking =activeTracking;
+                        if( UserContext.CurrentInstance().ActiveTracking)
+                        {
+                            GPSTracker gps = new GPSTracker(this.mContext);
+
+                            double lat =gps.getLatitude();
+                            double log = gps.getLongitude();
+
+                            UserContext.CurrentInstance().Location = new double[]{lat,log};
+                        }
+
+                        JSONArray cercle = topLevel.getJSONObject("current").getJSONArray("cercle");
+                        UserContext.CurrentInstance().GetContactList().clear();
 
                         if (cercle != null && cercle.length() > 0) {
                             int cpt = cercle.length();
                             for (int i = 0; i < cpt; i++) {
                                 String tmpLogin = cercle.getJSONObject(i).getString("Login");
                                 boolean tmpActive = cercle.getJSONObject(i).getBoolean("ActiveTracking");
-
                                 UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin, tmpActive));
                             }
                         }

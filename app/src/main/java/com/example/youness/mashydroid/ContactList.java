@@ -20,8 +20,6 @@ public class ContactList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-
-
          View v = inflater.inflate(R.layout.activity_contact_list, container, false);
 
         ArrayList<UserContact> arrayOfUsers = new ArrayList<UserContact>();
