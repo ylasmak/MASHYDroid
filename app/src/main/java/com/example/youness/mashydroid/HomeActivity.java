@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.youness.mashydroid.Business.MashyDroidBusiness;
 import com.example.youness.mashydroid.Business.UserContext;
 
 public class HomeActivity extends AppCompatActivity   {
@@ -52,6 +53,8 @@ public class HomeActivity extends AppCompatActivity   {
 
             }
         });
+
+         new MashyDroidBusiness().MashyProcessing(this);
 
     }
 

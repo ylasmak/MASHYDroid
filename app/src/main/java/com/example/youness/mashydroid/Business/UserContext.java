@@ -36,5 +36,7 @@ public class UserContext {
         return _contactList;
     }
 
+    public double[] Location;
+
 
 }

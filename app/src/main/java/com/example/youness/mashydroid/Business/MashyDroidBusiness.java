@@ -1,12 +1,16 @@
 package com.example.youness.mashydroid.Business;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.youness.mashydroid.HomeActivity;
+import com.example.youness.mashydroid.Model.UserContact;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -26,75 +30,125 @@ import java.net.URLEncoder;
 
 public class MashyDroidBusiness {
 
-    public  boolean MashyProcessing(String login,String password) throws UnsupportedEncodingException
+    public  boolean MashyProcessing(Activity app)
     {
-
-
-
-       new SendPostRequest("").execute("http://localhost;8081/conexion");
-
+        new SendPostRequest(app).execute( );
+        GPSTracker gps = new GPSTracker(app);
+        double lat =gps.getLatitude();
+        double log = gps.getLongitude();
       return true;
 
     }
 
-    public class SendPostRequest extends AsyncTask<String, String, String> {
+    public class SendPostRequest extends AsyncTask<Void, Void, Void> {
 
-        protected void onPreExecute(){}
+            Activity mContext;
 
-        String value;
-        public SendPostRequest(String value) {
-            this.value = value;
+            SendPostRequest(Activity app) {
+            this.mContext = app;
         }
 
-        protected String doInBackground(String... strings) {
+        protected Void doInBackground(Void... strings) {
 
-            try {
-                URL url = new URL(strings[0]);
-                String urlParameters = strings[1];
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setRequestProperty("Content-Type",
-                        "application/x-www-form-urlencoded");
-                urlConnection.setRequestProperty("Content-Length", "" +
-                        Integer.toString(urlParameters.getBytes().length));
-                urlConnection.setRequestProperty("Content-Language", "en-US");
+            while(true) {
+                try {
+                    URL url = new URL(UserContext.CurrentInstance().ServerUrl.concat("lookup"));
 
-                urlConnection.setUseCaches (false);
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
+                    String urlParameters = GetParameter();
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setRequestProperty("Content-Type",
+                            "application/x-www-form-urlencoded");
+                    urlConnection.setRequestProperty("Content-Length", "" +
+                            Integer.toString(urlParameters.length()));
+                    urlConnection.setRequestProperty("Content-Language", "en-US");
 
-                //Send request
-                DataOutputStream wr = new DataOutputStream(
-                        urlConnection.getOutputStream ());
-                wr.writeBytes (urlParameters);
-                wr.flush ();
-                wr.close ();
+                    urlConnection.setUseCaches(false);
+                    urlConnection.setDoInput(true);
+                    urlConnection.setDoOutput(true);
+
+                    //Send request
+                    DataOutputStream wr = new DataOutputStream(
+                            urlConnection.getOutputStream());
+                    wr.writeBytes(urlParameters);
+                    wr.flush();
+                    wr.close();
 
 
-                //Get Response
-                InputStream is = urlConnection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line;
-                StringBuffer response = new StringBuffer();
-                while((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
+                    //Get Response
+                    InputStream is = urlConnection.getInputStream();
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    StringBuffer response = new StringBuffer();
+                    while ((line = rd.readLine()) != null) {
+                        response.append(line);
+                        response.append('\r');
+                    }
+                    rd.close();
+                    String result = response.toString();
+
+                    JSONObject topLevel = new JSONObject(result);
+                    int sucess = topLevel.getInt("sucess");
+                    if (sucess > 0) {
+
+
+                        JSONArray cercle = topLevel.getJSONObject("message").getJSONArray("cercle");
+
+                        if (cercle != null && cercle.length() > 0) {
+                            int cpt = cercle.length();
+                            for (int i = 0; i < cpt; i++) {
+                                String tmpLogin = cercle.getJSONObject(i).getString("Login");
+                                boolean tmpActive = cercle.getJSONObject(i).getBoolean("ActiveTracking");
+
+                                UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin, tmpActive));
+                            }
+                        }
+
+
+
+                    }
+
+
+                } catch (java.io.IOException | JSONException e) {
+                    e.printStackTrace();
                 }
-                rd.close();
-                return response.toString();
 
 
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             }
-            return  null;
+
+
+
+
         }
 
 
+        private String GetParameter() throws UnsupportedEncodingException, JSONException {
 
-        @Override
-        protected void onPostExecute(String result) {
+            StringBuilder result = new StringBuilder();
+            result.append(URLEncoder.encode("Parmeters", "UTF-8"));
+            result.append("=");
 
+
+            JSONObject obj = new JSONObject();
+            obj.put("Login", UserContext.CurrentInstance().Login);
+            if(UserContext.CurrentInstance().Location != null) {
+                JSONArray topLevel = new JSONArray(UserContext.CurrentInstance().Location);
+                obj.put("Location", topLevel);
+            }
+
+            result.append(URLEncoder.encode(obj.toString(), "UTF-8"));
+
+            return result.toString();
+
+        }
+
+        protected void onPostExecute(final Boolean success) {
 
         }
     }
