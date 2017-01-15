@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -104,12 +105,21 @@ public class MashyDroidBusiness {
                         UserContext.CurrentInstance().ActiveTracking =activeTracking;
                         if( UserContext.CurrentInstance().ActiveTracking)
                         {
-                            GPSTracker gps = new GPSTracker(this.mContext);
 
-                            double lat =gps.getLatitude();
-                            double log = gps.getLongitude();
 
-                            UserContext.CurrentInstance().Location = new double[]{lat,log};
+                            Handler handler = new Handler(Looper.getMainLooper());
+
+                            handler.post(new Runnable(){
+                                public void run() {
+                                    GPSTracker gps = new GPSTracker(mContext);
+
+                                    double lat =gps.getLatitude();
+                                    double log = gps.getLongitude();
+
+                                    UserContext.CurrentInstance().Location = new double[]{lat,log};
+                                }});
+
+
                         }
 
                         JSONArray cercle = topLevel.getJSONObject("current").getJSONArray("cercle");
@@ -131,17 +141,6 @@ public class MashyDroidBusiness {
                                 SetUserLocation(tmpLogin,tmpLoCation);
                             }
 
-                            //update MAP
-                            //UserContext.CurrentInstance().mMap
-
-                            for(int i =0;i< UserContext.CurrentInstance().GetContactList().size();i++){
-                                UserContact contact  =UserContext.CurrentInstance().GetContactList().get(i);
-
-                                LatLng tmp = new LatLng(contact.Location[0],contact.Location[1] );
-                                UserContext.CurrentInstance().mMap.addMarker(new MarkerOptions().position(tmp).title(contact.Login));
-                                UserContext.CurrentInstance().mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tmp,15));
-
-                             }
                         }
 
 
@@ -172,24 +171,26 @@ public class MashyDroidBusiness {
                      contact = UserContext.CurrentInstance().GetContactList().get(i);
                     if (contact.Login.equals(login)) {
                         contact.Location = new double[]{location.getDouble(0), location.getDouble(1)};
-                        if (contact.mMarcker != null) {
-                            contact.mMarcker.remove();
+
+
+                        if(contact.Location[0] != 0 && contact.Location[1] != 0 &&
+                                UserContext.CurrentInstance().mMap !=null)
+                        {
+                            Handler handler = new Handler(Looper.getMainLooper());
+
+                            handler.post(new Runnable(){
+                                public void run() {
+
+                                    if (contact.mMarcker != null) {
+                                        contact.mMarcker.remove();
+                                    }
+                                    //your code
+                                    contact.mMarcker = UserContext.CurrentInstance().mMap.
+                                            addMarker(new MarkerOptions().position(
+                                                    new LatLng(contact.Location[0], contact.Location[1])).title(contact.Login));
+                                }
+                            });
                         }
-                        LatLng tmp = new LatLng(contact.Location[0], contact.Location[1]);
-
-                        Handler handler = new Handler(Looper.getMainLooper());
-
-                        handler.post(new Runnable(){
-                                         public void run() {
-                                             //your code
-                                             contact.mMarcker = UserContext.CurrentInstance().mMap.
-                                                     addMarker(new MarkerOptions().position(
-                                                             new LatLng(contact.Location[0], contact.Location[1])).title(contact.Login));
-                                         }
-                                     });
-
-
-
                     }
                 }
             }catch (Exception e)
