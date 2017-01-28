@@ -11,6 +11,7 @@ public class UserContact {
     public String Login;
     public boolean ActiveTracking;
     public  double[] Location;
+    public  String LastUpdateDate;
 
     public Marker mMarcker;
 

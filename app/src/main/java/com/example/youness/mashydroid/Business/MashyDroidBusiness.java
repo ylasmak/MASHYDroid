@@ -50,6 +50,7 @@ public class MashyDroidBusiness {
 
             Activity mContext;
 
+
             SendPostRequest(Activity app) {
             this.mContext = app;
         }
@@ -137,12 +138,46 @@ public class MashyDroidBusiness {
                         if(contactPosition !=null && contactPosition.length()> 0) {
                             for (int i = 0; i < contactPosition.length(); i++) {
                                 String tmpLogin = contactPosition.getJSONObject(i).getString("Login");
+                                String lastUpdate = contactPosition.getJSONObject(i).getString("update_at");
                                 JSONArray tmpLoCation =contactPosition.getJSONObject(i).getJSONObject("location").getJSONArray("coordinates");
-                                SetUserLocation(tmpLogin,tmpLoCation);
+                                SetUserLocation(tmpLogin,tmpLoCation,lastUpdate);
                             }
-
                         }
 
+                        //display in user to flow in map
+                        if(UserContext.CurrentInstance().mMap !=null) {
+
+                            for(int i = 0;i< UserContext.CurrentInstance().GetContactList().size();i++) {
+
+                                if( UserContext.CurrentInstance().LoginToFlow != null && UserContext.CurrentInstance().GetContactList().get(i).Login.toLowerCase().equals(
+                                        UserContext.CurrentInstance().LoginToFlow.toLowerCase()
+                                ))
+                                {
+                                   final UserContact contactToDisplay = UserContext.CurrentInstance().GetContactList().get(i);
+
+                                    if(contactToDisplay.Location[0] != 0 && contactToDisplay.Location[1] != 0 )
+                                    {
+                                        Handler handler = new Handler(Looper.getMainLooper());
+
+                                        handler.post(new Runnable(){
+                                            public void run() {
+
+                                                UserContext.CurrentInstance().mMap.clear();
+
+                                                LatLng tmp =  new LatLng(contactToDisplay.Location[0], contactToDisplay.Location[1]);
+
+                                                contactToDisplay.mMarcker = UserContext.CurrentInstance().mMap.
+                                                        addMarker(new MarkerOptions().position(
+                                                                tmp).title(contactToDisplay.LastUpdateDate));
+
+                                                UserContext.CurrentInstance().mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tmp,15));
+                                            }
+                                        });
+                                    }
+                                }
+
+                            }
+                        }
 
                     }
 
@@ -160,39 +195,17 @@ public class MashyDroidBusiness {
 
             }
         }
-        UserContact contact;
-        private  void SetUserLocation(String login, JSONArray location)  throws JSONException
+
+        private  void SetUserLocation(String login, JSONArray location,String lastUpdate)  throws JSONException
         {
 
             try {
 
                 for (int i = 0; i < UserContext.CurrentInstance().GetContactList().size(); i++) {
-
-                     contact = UserContext.CurrentInstance().GetContactList().get(i);
+                    UserContact contact = UserContext.CurrentInstance().GetContactList().get(i);
                     if (contact.Login.equals(login)) {
                         contact.Location = new double[]{location.getDouble(0), location.getDouble(1)};
-
-
-                        if(contact.Location[0] != 0 && contact.Location[1] != 0 &&
-                                UserContext.CurrentInstance().mMap !=null)
-                        {
-                            Handler handler = new Handler(Looper.getMainLooper());
-
-                            handler.post(new Runnable(){
-                                public void run() {
-
-                                    UserContext.CurrentInstance().mMap.clear();
-
-                                    LatLng tmp =  new LatLng(contact.Location[0], contact.Location[1]);
-
-                                    contact.mMarcker = UserContext.CurrentInstance().mMap.
-                                            addMarker(new MarkerOptions().position(
-                                                    tmp).title(contact.Login));
-
-                                    UserContext.CurrentInstance().mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tmp,15));
-                                }
-                            });
-                        }
+                        contact.LastUpdateDate = lastUpdate;
                     }
                 }
             }catch (Exception e)

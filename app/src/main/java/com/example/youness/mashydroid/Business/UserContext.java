@@ -30,6 +30,7 @@ public class UserContext {
     }
     public  String Login;
     public  String Password;
+    public String LoginToFlow;
 
     private  ArrayList<UserContact> _contactList;
     public String ServerUrl;

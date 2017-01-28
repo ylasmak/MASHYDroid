@@ -2,9 +2,11 @@ package com.example.youness.mashydroid;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.youness.mashydroid.Business.UserContext;
@@ -34,9 +36,14 @@ public class ContactList extends Fragment {
         UsersAdapter adapter = new UsersAdapter(this.getContext(), arrayOfUsers);
 
         ListView listView = (ListView) v.findViewById(R.id.listViewContact);
+
+
         listView.setAdapter(adapter);
 
         return  v;
     }
+
+
+
 
 }
