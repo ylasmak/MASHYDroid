@@ -24,6 +24,10 @@ public class UserContext {
         return  _instance;
     }
 
+    public  static  void Dispose()
+    {
+        _instance = null;
+    }
     public  String Login;
     public  String Password;
 

@@ -181,9 +181,7 @@ public class MashyDroidBusiness {
                             handler.post(new Runnable(){
                                 public void run() {
 
-                                    if (contact.mMarcker != null) {
-                                        contact.mMarcker.remove();
-                                    }
+                                    UserContext.CurrentInstance().mMap.clear();
 
                                     LatLng tmp =  new LatLng(contact.Location[0], contact.Location[1]);
 

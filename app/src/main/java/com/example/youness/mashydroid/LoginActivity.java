@@ -340,6 +340,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mPassword;
         private  final Intent mintent;
 
+
+
         UserLoginTask(String email, String password,Intent intent) {
             this.mEmail = email;
             mPassword = password;
@@ -352,6 +354,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             try {
                 URL url = new URL( UserContext.CurrentInstance().ServerUrl.concat("connexion"));
+
+               // UserContext.CurrentInstance().Dispose();
 
                 String urlParameters = GetParameter();
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
