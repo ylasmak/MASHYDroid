@@ -184,10 +184,14 @@ public class MashyDroidBusiness {
                                     if (contact.mMarcker != null) {
                                         contact.mMarcker.remove();
                                     }
-                                    //your code
+
+                                    LatLng tmp =  new LatLng(contact.Location[0], contact.Location[1]);
+
                                     contact.mMarcker = UserContext.CurrentInstance().mMap.
                                             addMarker(new MarkerOptions().position(
-                                                    new LatLng(contact.Location[0], contact.Location[1])).title(contact.Login));
+                                                    tmp).title(contact.Login));
+
+                                    UserContext.CurrentInstance().mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(tmp,15));
                                 }
                             });
                         }

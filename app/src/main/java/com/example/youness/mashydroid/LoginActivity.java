@@ -405,19 +405,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                                 UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin,tmpActive));
                             }
-
-
-
                         }
-
 
                     return true;
                 }
                 else return false;
-
-
-
-
             } catch (java.io.IOException | JSONException e) {
                 e.printStackTrace();
             }
