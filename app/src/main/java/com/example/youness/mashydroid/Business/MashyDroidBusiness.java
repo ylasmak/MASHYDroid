@@ -50,7 +50,6 @@ public class MashyDroidBusiness {
 
             Activity mContext;
 
-
             SendPostRequest(Activity app) {
             this.mContext = app;
         }
@@ -100,14 +99,10 @@ public class MashyDroidBusiness {
                     int sucess = topLevel.getInt("sucess");
                     if (sucess > 0) {
 
-
-
                         boolean activeTracking = topLevel.getJSONObject("current").getBoolean("activate_tracking");
                         UserContext.CurrentInstance().ActiveTracking =activeTracking;
                         if( UserContext.CurrentInstance().ActiveTracking)
                         {
-
-
                             Handler handler = new Handler(Looper.getMainLooper());
 
                             handler.post(new Runnable(){
@@ -119,8 +114,6 @@ public class MashyDroidBusiness {
 
                                     UserContext.CurrentInstance().Location = new double[]{lat,log};
                                 }});
-
-
                         }
 
                         JSONArray cercle = topLevel.getJSONObject("current").getJSONArray("cercle");
@@ -134,6 +127,7 @@ public class MashyDroidBusiness {
                                 UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin, tmpActive));
                             }
                         }
+
                         JSONArray contactPosition = topLevel.getJSONArray("result");
                         if(contactPosition !=null && contactPosition.length()> 0) {
                             for (int i = 0; i < contactPosition.length(); i++) {
