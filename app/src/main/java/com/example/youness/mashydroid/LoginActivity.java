@@ -3,10 +3,13 @@ package com.example.youness.mashydroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -19,6 +22,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -77,7 +82,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText mPphoneNumber;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -86,26 +91,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
+
+
+        mPphoneNumber = (EditText) findViewById(R.id.phoneNumber);
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
-
 
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
             UserContext.CurrentInstance().ServerUrl = bundle.getString("mashy_server_url");
+
+            int permissionCheck = ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.READ_PHONE_STATE);
+            final int REQUEST_CODE_READ_PHONE_STATE = 123;
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.READ_PHONE_STATE},
+                        REQUEST_CODE_READ_PHONE_STATE); // define this constant yourself
+            }
+
+            TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+            UserContext.CurrentInstance().PhoneNumber = tMgr.getLine1Number();
+            attemptLogin();
+
+
 
         } catch (PackageManager.NameNotFoundException e) {
             Log.e("TAG", "Failed to load meta-data, NameNotFound: " + e.getMessage());
@@ -117,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptRegister();
             }
         });
 
@@ -125,10 +134,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
 
-        mEmailView.setText("ylasmak@gmail.com");
-        mPasswordView.setText("password");
+        mPphoneNumber.setText(UserContext.CurrentInstance().PhoneNumber);
+        mPphoneNumber.setInputType(InputType.TYPE_NULL);
+        mPphoneNumber.setTextIsSelectable(true);
+        mPphoneNumber.setKeyListener(null);
 
-
+        mEmailView.requestFocus();
+       // mPasswordView.setText("password");
     }
 
     private void populateAutoComplete() {
@@ -185,48 +197,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return;
         }
 
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             Intent intent = new Intent(this, HomeActivity.class);
             //startActivity(intent);
+            if( UserContext.CurrentInstance().PhoneNumber != null) {
+              //  showProgress(true);
+                mAuthTask = new UserLoginTask(UserContext.CurrentInstance().PhoneNumber,null,intent);
+                mAuthTask.execute();
+            }
+    }
 
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password,intent);
-            mAuthTask.execute();
+    private void attemptRegister() {
+        if (mAuthTask != null) {
+            return;
+        }
+
+        Intent intent = new Intent(this, HomeActivity.class);
+        String mail = mEmailView.getText().toString();
+        //startActivity(intent);
+        if( UserContext.CurrentInstance().PhoneNumber != null) {
+           if(!isEmailValid (mail)) {
+               mEmailView.setError(getString(R.string.error_invalid_email));
+               mEmailView.requestFocus();
+           }
+            else {
+                showProgress(true);
+               mAuthTask = new UserLoginTask(UserContext.CurrentInstance().PhoneNumber,mail, intent);
+               mAuthTask.execute();
+           }
         }
     }
 
@@ -235,10 +232,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return email.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
 
     /**
      * Shows the progress UI and hides the login form.
@@ -336,24 +329,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
+        private final String mPhoneNumber;
         private  final Intent mintent;
+        private final String eMail;
 
 
 
-        UserLoginTask(String email, String password,Intent intent) {
-            this.mEmail = email;
-            mPassword = password;
+        UserLoginTask(String phoneNumber,String email,  Intent intent) {
+            this.mPhoneNumber = phoneNumber;
             mintent = intent;
+            eMail = email;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
+            URL url;
             try {
-                URL url = new URL( UserContext.CurrentInstance().ServerUrl.concat("connexion"));
+                if(this.eMail ==null) {
+                     url = new URL(UserContext.CurrentInstance().ServerUrl.concat("connexion"));
+                }
+                else
+                {
+                    url = new URL(UserContext.CurrentInstance().ServerUrl.concat("register"));
+                }
 
                // UserContext.CurrentInstance().Dispose();
 
@@ -394,9 +393,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 int sucess = topLevel.getInt("sucess");
                 if(sucess > 0) {
 
-                        UserContext.CurrentInstance().Login = this.mEmail;
-                        UserContext.CurrentInstance().Password = this.mPassword;
-
+                       UserContext.CurrentInstance().Auth = true;
                        JSONArray cercle = topLevel.getJSONObject("message").getJSONArray("cercle");
 
                         if(cercle != null && cercle.length() > 0)
@@ -426,35 +423,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+          //  showProgress(false);
 
             if (success) {
                 //Intent intent = new Intent(this, HomeActivity.class);
                 startActivity(mintent);
                 //finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
             }
         }
 
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-            showProgress(false);
+           // showProgress(false);
         }
 
         private String GetParameter()throws UnsupportedEncodingException
         {
             StringBuilder result = new StringBuilder();
 
-            result.append(URLEncoder.encode("Login", "UTF-8"));
+            result.append(URLEncoder.encode("PhoneNumber", "UTF-8"));
             result.append("=");
-            result.append(URLEncoder.encode(this.mEmail, "UTF-8"));
-            result.append("&");
-            result.append(URLEncoder.encode("Password", "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(this.mPassword, "UTF-8"));
+            result.append(URLEncoder.encode(this.mPhoneNumber, "UTF-8"));
+
+            if(this.eMail != null)
+            {
+                result.append("&");
+                result.append(URLEncoder.encode("Email", "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(this.eMail, "UTF-8"));
+            }
+
 
             return result.toString();
         }

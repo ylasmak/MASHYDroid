@@ -46,6 +46,7 @@ public class UserContext {
     boolean ActiveTracking;
 
     public GoogleMap mMap;
-
+    public  String PhoneNumber;
+    public  boolean Auth;
 
 }

@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -44,19 +45,14 @@
             android:value="@string/google_maps_key" />
         <meta-data
             android:name="mashy_server_url"
-            android:value="http://mashy.ddns.net/" />
+            android:value="http://10.0.2.2:8081/" />
 
-        <activity
-            android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
+
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".ContactList"
-            android:label="@string/title_activity_contact_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+
     </application>
 
 </manifest>

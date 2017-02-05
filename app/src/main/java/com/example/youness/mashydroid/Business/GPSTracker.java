@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -70,10 +71,27 @@ public class GPSTracker implements LocationListener {
             // getting network status
             isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            isGPSEnabled = false;
+            isNetworkEnabled = false;
 
             if (!isGPSEnabled && !isNetworkEnabled) {
-                // no network provider is enabled
-            } else {
+
+                Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+                intent.putExtra("enabled", true);
+                this.mContext.sendBroadcast(intent);
+
+                String provider = Settings.Secure.getString(this.mContext.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+                if(!provider.contains("gps")){ //if gps is disabled
+                    final Intent poke = new Intent();
+                    poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+                    poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+                    poke.setData(Uri.parse("3"));
+                    this.mContext.sendBroadcast(poke);
+
+                }
+
+            }
+                else {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
@@ -92,6 +110,7 @@ public class GPSTracker implements LocationListener {
                     if (locationManager != null) {
                         location = locationManager
                                 .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
                         if (location != null) {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
@@ -112,12 +131,13 @@ public class GPSTracker implements LocationListener {
                             }
                         }
 
-
                         locationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+
                         Log.d("GPS Enabled", "GPS Enabled");
+
                         if (locationManager != null) {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);

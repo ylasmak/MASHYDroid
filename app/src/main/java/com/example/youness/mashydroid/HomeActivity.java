@@ -55,7 +55,7 @@ public class HomeActivity extends AppCompatActivity   {
             }
         });
 
-         new MashyDroidBusiness().MashyProcessing(this);
+        // new MashyDroidBusiness().MashyProcessing(this);
 
     }
 
