@@ -47,6 +47,7 @@ public class UserContext {
 
     public GoogleMap mMap;
     public  String PhoneNumber;
+    public  String PhoneSerialNumber;
     public  boolean Auth;
 
 }

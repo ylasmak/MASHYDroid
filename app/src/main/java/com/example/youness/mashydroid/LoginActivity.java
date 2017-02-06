@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPphoneNumber;
+    private EditText mSerialText;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -94,6 +95,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
         mPphoneNumber = (EditText) findViewById(R.id.phoneNumber);
+        mSerialText = (EditText) findViewById(R.id.serialNumber);
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 
         try {
@@ -112,6 +114,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
             UserContext.CurrentInstance().PhoneNumber = tMgr.getLine1Number();
+            UserContext.CurrentInstance().PhoneSerialNumber = tMgr.getSimSerialNumber();
             attemptLogin();
 
 
@@ -135,11 +138,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
         mPphoneNumber.setText(UserContext.CurrentInstance().PhoneNumber);
-        mPphoneNumber.setInputType(InputType.TYPE_NULL);
-        mPphoneNumber.setTextIsSelectable(true);
-        mPphoneNumber.setKeyListener(null);
+        mSerialText.setText(UserContext.CurrentInstance().PhoneSerialNumber);
 
-        mEmailView.requestFocus();
+        mSerialText.setInputType(InputType.TYPE_NULL);
+        mSerialText.setTextIsSelectable(true);
+        mSerialText.setKeyListener(null);
+
+
+        mPphoneNumber.requestFocus();
        // mPasswordView.setText("password");
     }
 
@@ -201,7 +207,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             //startActivity(intent);
             if( UserContext.CurrentInstance().PhoneNumber != null) {
               //  showProgress(true);
-                mAuthTask = new UserLoginTask(UserContext.CurrentInstance().PhoneNumber,null,intent);
+                mAuthTask = new UserLoginTask("Login",intent);
                 mAuthTask.execute();
             }
     }
@@ -212,16 +218,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         Intent intent = new Intent(this, HomeActivity.class);
-        String mail = mEmailView.getText().toString();
+        UserContext.CurrentInstance().Login = mEmailView.getText().toString();
+        UserContext.CurrentInstance().PhoneNumber = mPphoneNumber.getText().toString();
+
         //startActivity(intent);
         if( UserContext.CurrentInstance().PhoneNumber != null) {
-           if(!isEmailValid (mail)) {
+           if(!isEmailValid ( UserContext.CurrentInstance().Login)) {
                mEmailView.setError(getString(R.string.error_invalid_email));
                mEmailView.requestFocus();
            }
             else {
                 showProgress(true);
-               mAuthTask = new UserLoginTask(UserContext.CurrentInstance().PhoneNumber,mail, intent);
+               mAuthTask = new UserLoginTask("Register", intent);
                mAuthTask.execute();
            }
         }
@@ -329,29 +337,34 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mPhoneNumber;
+
         private  final Intent mintent;
-        private final String eMail;
+        private  final String mAction;
 
+        UserLoginTask(String action,  Intent intent) {
 
-
-        UserLoginTask(String phoneNumber,String email,  Intent intent) {
-            this.mPhoneNumber = phoneNumber;
             mintent = intent;
-            eMail = email;
+            mAction = action;
+
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            URL url;
+
             try {
-                if(this.eMail ==null) {
+                URL url = new URL(UserContext.CurrentInstance().ServerUrl.concat("connexion"));
+                if(mAction.equals("Login")) {
                      url = new URL(UserContext.CurrentInstance().ServerUrl.concat("connexion"));
                 }
-                else
+                if(mAction.equals("Register"))
                 {
                     url = new URL(UserContext.CurrentInstance().ServerUrl.concat("register"));
+                }
+
+                if(mAction.equals("Verify"))
+                {
+                    url = new URL(UserContext.CurrentInstance().ServerUrl.concat("verify"));
                 }
 
                // UserContext.CurrentInstance().Dispose();
@@ -444,14 +457,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             result.append(URLEncoder.encode("PhoneNumber", "UTF-8"));
             result.append("=");
-            result.append(URLEncoder.encode(this.mPhoneNumber, "UTF-8"));
+            result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
 
-            if(this.eMail != null)
+            if(UserContext.CurrentInstance().PhoneNumber != null)
             {
                 result.append("&");
                 result.append(URLEncoder.encode("Email", "UTF-8"));
                 result.append("=");
-                result.append(URLEncoder.encode(this.eMail, "UTF-8"));
+                result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
             }
 
 
