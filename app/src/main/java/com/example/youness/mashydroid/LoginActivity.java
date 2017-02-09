@@ -38,6 +38,10 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -113,11 +117,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
-            UserContext.CurrentInstance().PhoneNumber = tMgr.getLine1Number();
+            UserContext.CurrentInstance().PhoneNumber = GetPhoneNumber();
             UserContext.CurrentInstance().PhoneSerialNumber = tMgr.getSimSerialNumber();
             attemptLogin();
-
-
 
         } catch (PackageManager.NameNotFoundException e) {
             Log.e("TAG", "Failed to load meta-data, NameNotFound: " + e.getMessage());
@@ -147,6 +149,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mPphoneNumber.requestFocus();
        // mPasswordView.setText("password");
+    }
+
+    // Getting phone number from file storage
+    private String GetPhoneNumber()   {
+
+        String line,line1 = "";
+        try {
+            String FILENAME = "MashyStorage";
+            File file = new File(FILENAME);
+            FileInputStream fis = openFileInput(FILENAME);
+
+
+                if (fis != null) {
+                    InputStreamReader inputreader = new InputStreamReader(fis);
+                    BufferedReader buffreader = new BufferedReader(inputreader);
+
+
+                    while ((line = buffreader.readLine()) != null)
+                        line1 += line;
+                    fis.close();
+                }
+
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return  line1;
+
     }
 
     private void populateAutoComplete() {
@@ -217,7 +248,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return;
         }
 
-        Intent intent = new Intent(this, HomeActivity.class);
+        Intent intent = new Intent(this, VerifyOTP.class);
         UserContext.CurrentInstance().Login = mEmailView.getText().toString();
         UserContext.CurrentInstance().PhoneNumber = mPphoneNumber.getText().toString();
 
@@ -228,7 +259,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                mEmailView.requestFocus();
            }
             else {
-                showProgress(true);
+               showProgress(true);
                mAuthTask = new UserLoginTask("Register", intent);
                mAuthTask.execute();
            }
@@ -362,10 +393,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     url = new URL(UserContext.CurrentInstance().ServerUrl.concat("register"));
                 }
 
-                if(mAction.equals("Verify"))
-                {
-                    url = new URL(UserContext.CurrentInstance().ServerUrl.concat("verify"));
-                }
+
 
                // UserContext.CurrentInstance().Dispose();
 
@@ -439,9 +467,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
           //  showProgress(false);
 
             if (success) {
-                //Intent intent = new Intent(this, HomeActivity.class);
-                startActivity(mintent);
-                //finish();
+                if(mAction.equals("Register"))
+                {
+                    startActivity(mintent);
+                }
+
             }
         }
 
@@ -459,12 +489,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             result.append("=");
             result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
 
-            if(UserContext.CurrentInstance().PhoneNumber != null)
+            result.append("&");
+            result.append(URLEncoder.encode("SerialNumber", "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneSerialNumber, "UTF-8"));
+
+            if(mAction.equals("Register"))
             {
                 result.append("&");
                 result.append(URLEncoder.encode("Email", "UTF-8"));
                 result.append("=");
-                result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
+                result.append(URLEncoder.encode(UserContext.CurrentInstance().Login, "UTF-8"));
+
+
             }
 
 

@@ -47,12 +47,14 @@
             android:name="mashy_server_url"
             android:value="http://10.0.2.2:8081/" />
 
-
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
-
+        <activity
+            android:name=".VerifyOTP"
+            android:label="@string/title_activity_verify_otp"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
