@@ -26,6 +26,9 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
             case 1:
                 MapsActivity tab2 = new MapsActivity();
                 return tab2;
+            case 2:
+                PhoneContact tab3 = new PhoneContact();
+                return tab3;
 
             default:
                 return null;

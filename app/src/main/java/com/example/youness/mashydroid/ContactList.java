@@ -22,7 +22,7 @@ public class ContactList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-         View v = inflater.inflate(R.layout.activity_contact_list, container, false);
+        View v = inflater.inflate(R.layout.activity_contact_list, container, false);
 
         ArrayList<UserContact> arrayOfUsers = new ArrayList<UserContact>();
          int cpt = UserContext.CurrentInstance().GetContactList().size();
@@ -34,10 +34,7 @@ public class ContactList extends Fragment {
         }
 
         UsersAdapter adapter = new UsersAdapter(this.getContext(), arrayOfUsers);
-
         ListView listView = (ListView) v.findViewById(R.id.listViewContact);
-
-
         listView.setAdapter(adapter);
 
         return  v;

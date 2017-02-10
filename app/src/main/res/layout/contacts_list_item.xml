@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="@color/colorAccent"
+    android:id="@+id/Layout"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/FullName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:background="@color/wallet_highlighted_text_holo_dark"
+        tools:textColorLink="@color/common_google_signin_btn_text_light_focused"
+        android:textColor="@color/common_google_signin_btn_text_light_default"
+        android:textSize="@dimen/cast_expanded_controller_margin_between_status_text_and_seek_bar"
+        tools:textSize="48sp" />
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/Number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:background="@color/wallet_highlighted_text_holo_dark"
+        tools:textColorLink="@color/common_google_signin_btn_text_light_focused"
+        android:textColor="@color/common_google_signin_btn_text_light_default"
+        android:textSize="@dimen/cast_expanded_controller_margin_between_status_text_and_seek_bar"
+        tools:textSize="48sp" />
+
+ </LinearLayout>
+
+

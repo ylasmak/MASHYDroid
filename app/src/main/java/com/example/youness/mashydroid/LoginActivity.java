@@ -160,7 +160,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             File file = new File(FILENAME);
             FileInputStream fis = openFileInput(FILENAME);
 
-
                 if (fis != null) {
                     InputStreamReader inputreader = new InputStreamReader(fis);
                     BufferedReader buffreader = new BufferedReader(inputreader);
@@ -171,7 +170,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     fis.close();
                 }
 
-        }catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -235,12 +235,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
             Intent intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
             //startActivity(intent);
-            if( UserContext.CurrentInstance().PhoneNumber != null) {
+           /* if( UserContext.CurrentInstance().PhoneNumber != null) {
               //  showProgress(true);
                 mAuthTask = new UserLoginTask("Login",intent);
                 mAuthTask.execute();
-            }
+            }*/
     }
 
     private void attemptRegister() {
@@ -361,13 +362,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
     }
-
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
 
         private  final Intent mintent;
         private  final String mAction;
@@ -467,11 +466,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
           //  showProgress(false);
 
             if (success) {
-                if(mAction.equals("Register"))
-                {
                     startActivity(mintent);
-                }
-
             }
         }
 
