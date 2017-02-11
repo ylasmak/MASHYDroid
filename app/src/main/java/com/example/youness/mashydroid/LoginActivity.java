@@ -88,6 +88,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private AutoCompleteTextView mEmailView;
     private EditText mPphoneNumber;
     private EditText mSerialText;
+    private  EditText mCountryCode;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -101,6 +102,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPphoneNumber = (EditText) findViewById(R.id.phoneNumber);
         mSerialText = (EditText) findViewById(R.id.serialNumber);
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mCountryCode = (EditText) findViewById(R.id.phoneCode);
+
 
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA);
@@ -118,8 +121,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
 
-            String iso =tMgr.getSimCountryIso();
-            UserContext.CurrentInstance().PhoneNumber = GetPhoneNumber();
+            UserContext.CurrentInstance().CountryCode =tMgr.getSimCountryIso();
+           UserContext.CurrentInstance().PhoneNumber = GetPhoneNumber();
             UserContext.CurrentInstance().PhoneSerialNumber = tMgr.getSimSerialNumber();
             attemptLogin();
 
@@ -235,12 +238,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (mAuthTask != null) {
             return;
         }
-
             Intent intent = new Intent(this, HomeActivity.class);
 
             if( UserContext.CurrentInstance().PhoneNumber != null) {
               //  showProgress(true);
                 mAuthTask = new UserLoginTask("Login",intent);
+                mAuthTask.execute();
+            }
+            else
+            {
+                mAuthTask = new UserLoginTask("getCountryCode",intent);
                 mAuthTask.execute();
             }
     }
@@ -249,7 +256,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (mAuthTask != null) {
             return;
         }
-
+        boolean success = true;
         Intent intent = new Intent(this, VerifyOTP.class);
         UserContext.CurrentInstance().Login = mEmailView.getText().toString();
         UserContext.CurrentInstance().PhoneNumber = mPphoneNumber.getText().toString();
@@ -259,14 +266,52 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
            if(!isEmailValid ( UserContext.CurrentInstance().Login)) {
                mEmailView.setError(getString(R.string.error_invalid_email));
                mEmailView.requestFocus();
+               success = false;
            }
-            else {
+            if(!isPhoneNumberValid ( UserContext.CurrentInstance().PhoneNumber)) {
+                mPphoneNumber.setError(getString(R.string.error_invalid_phone));
+                mPphoneNumber.requestFocus();
+                success = false;
+            }
+            if(!isCountryCallingCodeValid ( UserContext.CurrentInstance().CountryCallingCode)) {
+                mCountryCode.setError(getString(R.string.error_invalid_country_code));
+                mCountryCode.requestFocus();
+                success = false;
+            }
+
+            if(success) {
                showProgress(true);
                mAuthTask = new UserLoginTask("Register", intent);
                mAuthTask.execute();
            }
         }
     }
+private  boolean isCountryCallingCodeValid(String countryCode)
+{
+    if(countryCode.contains("+"))
+    {
+        return false;
+    }
+    if(countryCode.startsWith("0"))
+    {
+        return false;
+    }
+    return true;
+}
+private  boolean isPhoneNumberValid(String phoneNumber) {
+
+    if(phoneNumber.startsWith("00"))
+    {
+        return  false;
+    }
+    if(phoneNumber.length() > 12)
+    {
+        return  false;
+    }
+    return  true;
+}
+
+
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -393,6 +438,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     url = new URL(UserContext.CurrentInstance().ServerUrl.concat("register"));
                 }
 
+                if(mAction.equals("getCountryCode"))
+                {
+                    url = new URL(UserContext.CurrentInstance().ServerUrl.concat("getCountryCode"));
+                }
+
                // UserContext.CurrentInstance().Dispose();
 
                 String urlParameters = GetParameter();
@@ -432,20 +482,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 int sucess = topLevel.getInt("sucess");
                 if(sucess > 0) {
 
-                       UserContext.CurrentInstance().Auth = true;
-                       JSONArray cercle = topLevel.getJSONObject("message").getJSONArray("cercle");
+                    if(topLevel.has("message")) {
+                        UserContext.CurrentInstance().Auth = true;
+                        JSONObject message  =  topLevel.getJSONObject("message");
+                        JSONArray cercle = message.getJSONArray("cercle");
 
-                        if(cercle != null && cercle.length() > 0)
-                        {
-                         int cpt = cercle.length();
-                            for(int i =0;i<cpt;i++)
-                            {
+                        if (cercle != null && cercle.length() > 0) {
+                            int cpt = cercle.length();
+                            for (int i = 0; i < cpt; i++) {
                                 String tmpLogin = cercle.getJSONObject(i).getString("Login");
                                 boolean tmpActive = cercle.getJSONObject(i).getBoolean("ActiveTracking");
 
-                                UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin,tmpActive));
+                                UserContext.CurrentInstance().GetContactList().add(new UserContact(tmpLogin, tmpActive));
                             }
                         }
+                    }
+
+                    if(topLevel.has("Country"))
+                    {
+                        JSONObject country = topLevel.getJSONObject("Country");
+                        UserContext.CurrentInstance().CountryCallingCode = country.getString("Code");
+                    }
 
                     return true;
                 }
@@ -453,8 +510,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } catch (java.io.IOException | JSONException e) {
                 e.printStackTrace();
             }
-
-
             // TODO: register the new account here.
             return false;
         }
@@ -462,10 +517,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-          //  showProgress(false);
 
             if (success) {
+                if(mAction.equals("getCountryCode"))
+                {
+                    mCountryCode.setText(UserContext.CurrentInstance().CountryCallingCode);
+
+                }
+                else {
                     startActivity(mintent);
+                }
             }
         }
 
@@ -479,9 +540,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         {
             StringBuilder result = new StringBuilder();
 
-            result.append(URLEncoder.encode("PhoneNumber", "UTF-8"));
+            if(UserContext.CurrentInstance().PhoneNumber != null)
+            {
+                result.append(URLEncoder.encode("PhoneNumber", "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
+                result.append("&");
+            }
+
+            if(UserContext.CurrentInstance().CountryCallingCode != null) {
+                result.append(URLEncoder.encode("CountryCallCode", "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(UserContext.CurrentInstance().CountryCallingCode, "UTF-8"));
+                result.append("&");
+            }
+
+            result.append(URLEncoder.encode("CountryCode", "UTF-8"));
             result.append("=");
-            result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
+            result.append(URLEncoder.encode(UserContext.CurrentInstance().CountryCode, "UTF-8"));
 
             result.append("&");
             result.append(URLEncoder.encode("SerialNumber", "UTF-8"));

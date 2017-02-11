@@ -79,6 +79,8 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
+
+        String country = "MA";
     }
 
     @Override

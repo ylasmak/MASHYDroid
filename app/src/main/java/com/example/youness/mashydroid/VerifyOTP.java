@@ -106,7 +106,6 @@ public class VerifyOTP extends AppCompatActivity {
                 wr.flush ();
                 wr.close ();
 
-
                 //Get Response
                 InputStream is = urlConnection.getInputStream();
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is));

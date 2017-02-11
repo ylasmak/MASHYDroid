@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -35,12 +36,12 @@ public class ConfirmationMessage extends DialogFragment {
         builder.setMessage(getArguments().getString("msg"))
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // FIRE ZE MISSILES!
+                        mListener.onDialogPositiveClick(ConfirmationMessage.this);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
+                        mListener.onDialogNegativeClick(ConfirmationMessage.this);
                     }
                 });
         // Create the AlertDialog object and return it
@@ -48,7 +49,7 @@ public class ConfirmationMessage extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         // Verify that the host activity implements the callback interface
         try {

@@ -48,6 +48,8 @@ public class UserContext {
     public GoogleMap mMap;
     public  String PhoneNumber;
     public  String PhoneSerialNumber;
+    public  String CountryCode;
+    public  String CountryCallingCode;
     public  boolean Auth;
 
 }
