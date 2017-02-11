@@ -1,5 +1,6 @@
 package com.example.youness.mashydroid;
 
+import android.app.DialogFragment;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -14,7 +15,7 @@ import android.view.MenuItem;
 import com.example.youness.mashydroid.Business.MashyDroidBusiness;
 import com.example.youness.mashydroid.Business.UserContext;
 
-public class HomeActivity extends AppCompatActivity   {
+public class HomeActivity extends AppCompatActivity implements ConfirmationMessage.NoticeDialogListener {
 
     /** Called when the activity is first created. */
     @Override
@@ -76,4 +77,11 @@ public class HomeActivity extends AppCompatActivity   {
        // return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+    }
 }

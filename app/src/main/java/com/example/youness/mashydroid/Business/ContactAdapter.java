@@ -1,6 +1,9 @@
 package com.example.youness.mashydroid.Business;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.example.youness.mashydroid.ConfirmationMessage;
 import com.example.youness.mashydroid.Model.UserContact;
 import com.example.youness.mashydroid.Model.UserPhoneNumber;
 import com.example.youness.mashydroid.R;
@@ -40,19 +44,22 @@ public class ContactAdapter extends ArrayAdapter<UserPhoneNumber> {
         LinearLayout tvLayout = (LinearLayout) convertView.findViewById(R.id.Layout);
 
 
-
-
         // Populate the data into the template view using the data object
-        tvFullName.setText(user.FullName.toLowerCase());
-        tvNumber.setText(user.PhoneNumber.toLowerCase());
+        tvFullName.setText(user.FullName);
+        tvNumber.setText(user.PhoneNumber);
+        tvLayout.setTag(user.FullName +" " +user.PhoneNumber);
 
         tvLayout.setOnClickListener( new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
                 LinearLayout layout = (LinearLayout)v;
                 layout.getChildCount();
+
+                String message =getContext().getString( R.string.Send_invitation);
+                message = message +layout.getTag().toString();
+                ConfirmationMessage.newInstance(message).show(((Activity)getContext()).getFragmentManager(),"Notify");
+
 
             }
         });

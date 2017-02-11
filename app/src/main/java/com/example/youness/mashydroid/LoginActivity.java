@@ -117,6 +117,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+
+            String iso =tMgr.getSimCountryIso();
             UserContext.CurrentInstance().PhoneNumber = GetPhoneNumber();
             UserContext.CurrentInstance().PhoneSerialNumber = tMgr.getSimSerialNumber();
             attemptLogin();
@@ -235,13 +237,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
             Intent intent = new Intent(this, HomeActivity.class);
-        startActivity(intent);
-            //startActivity(intent);
-           /* if( UserContext.CurrentInstance().PhoneNumber != null) {
+
+            if( UserContext.CurrentInstance().PhoneNumber != null) {
               //  showProgress(true);
                 mAuthTask = new UserLoginTask("Login",intent);
                 mAuthTask.execute();
-            }*/
+            }
     }
 
     private void attemptRegister() {
@@ -391,8 +392,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 {
                     url = new URL(UserContext.CurrentInstance().ServerUrl.concat("register"));
                 }
-
-
 
                // UserContext.CurrentInstance().Dispose();
 
