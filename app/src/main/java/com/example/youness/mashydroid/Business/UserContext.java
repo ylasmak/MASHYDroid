@@ -42,6 +42,36 @@ public class UserContext {
         return _contactList;
     }
 
+
+    public  String getFullPhoneNumber()
+    {
+       if(CountryCode == null)
+       {
+           return null ;
+       }
+        String result="" ;
+        String CountryCode = CountryCallingCode.trim();
+        if(CountryCode.startsWith("+")) {
+            CountryCode = CountryCode.substring(1,CountryCode.length());
+            CountryCode = "00"+CountryCode;
+        }
+        else
+        {
+            CountryCode = "00"+CountryCode;
+        }
+
+        String phoneNumber = PhoneNumber.trim();
+        if(phoneNumber.startsWith("0"))
+        {
+            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+        }
+
+        result = CountryCode+phoneNumber;
+
+
+        return  result;
+    }
+
     public double[] Location;
     boolean ActiveTracking;
 

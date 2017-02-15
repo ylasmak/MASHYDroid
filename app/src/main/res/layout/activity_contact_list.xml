@@ -8,7 +8,6 @@
     tools:context="com.example.youness.mashydroid.ContactList"
     android:background="@android:color/holo_orange_light">
 
-
     <ListView
         android:id="@+id/listViewContact"
         android:layout_width="fill_parent"

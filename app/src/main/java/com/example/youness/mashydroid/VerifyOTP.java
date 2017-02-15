@@ -54,11 +54,7 @@ public class VerifyOTP extends AppCompatActivity {
     }
 
     private void attemptVerify(String code) {
-        if (mAuthTask != null) {
-            return;
-        }
-
-        Intent intent = new Intent(this, HomeActivity.class);
+       Intent intent = new Intent(this, HomeActivity.class);
         //startActivity(intent);
         if( UserContext.CurrentInstance().PhoneNumber != null) {
             //  showProgress(true);
@@ -174,7 +170,8 @@ public class VerifyOTP extends AppCompatActivity {
 
             result.append(URLEncoder.encode("PhoneNumber", "UTF-8"));
             result.append("=");
-            result.append(URLEncoder.encode(UserContext.CurrentInstance().PhoneNumber, "UTF-8"));
+
+            result.append(URLEncoder.encode(UserContext.CurrentInstance().getFullPhoneNumber(), "UTF-8"));
 
             result.append("&");
             result.append(URLEncoder.encode("OTPCode", "UTF-8"));
