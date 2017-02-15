@@ -20,9 +20,11 @@ public class ConfirmationMessage extends DialogFragment {
         public void onDialogNegativeClick(DialogFragment dialog);
     }
     NoticeDialogListener mListener;
+    public String mPhoneNumber;
 
-    public static ConfirmationMessage newInstance(String msg) {
+    public static ConfirmationMessage newInstance(String msg,String phoneNumber) {
         ConfirmationMessage fragment = new ConfirmationMessage();
+        fragment.mPhoneNumber = phoneNumber;
         Bundle bundle = new Bundle();
         bundle.putString("msg", msg); // set msg here
         fragment.setArguments(bundle);

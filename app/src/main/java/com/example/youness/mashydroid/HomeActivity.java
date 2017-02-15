@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.youness.mashydroid.Business.MashyDroidBusiness;
+import com.example.youness.mashydroid.Business.PhoneNumberHelper;
 import com.example.youness.mashydroid.Business.UserContext;
 
 public class HomeActivity extends AppCompatActivity implements ConfirmationMessage.NoticeDialogListener {
@@ -80,7 +81,9 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
 
-        String country = "MA";
+        String phoneNumber = ((ConfirmationMessage)dialog).mPhoneNumber;
+        phoneNumber =PhoneNumberHelper.GetFullPhoneNumber(phoneNumber);
+
     }
 
     @Override

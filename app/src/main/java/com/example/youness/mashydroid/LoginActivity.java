@@ -137,6 +137,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
 
         mLoginFormView = findViewById(R.id.login_form);
+        mLoginFormView.setVisibility(View.INVISIBLE);
         mProgressView = findViewById(R.id.login_progress);
 
 
@@ -551,6 +552,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
             else
             {
+                if(mAction.equals("Login"))
+                {
+                    mLoginFormView.setVisibility(View.VISIBLE);
+                }
+
                if(UserContext.CurrentInstance().CountryCallingCode!=null) {
                    mCountryCode.setText(UserContext.CurrentInstance().CountryCallingCode);
                }
