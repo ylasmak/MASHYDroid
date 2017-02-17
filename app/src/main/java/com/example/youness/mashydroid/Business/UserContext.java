@@ -51,13 +51,13 @@ public class UserContext {
        }
         String result="" ;
         String CountryCode = CountryCallingCode.trim();
-        if(CountryCode.startsWith("+")) {
-            CountryCode = CountryCode.substring(1,CountryCode.length());
-            CountryCode = "00"+CountryCode;
+        if(CountryCode.startsWith("00")) {
+            CountryCode = CountryCode.substring(2,CountryCode.length());
+            CountryCode = "+"+CountryCode;
         }
-        else
-        {
-            CountryCode = "00"+CountryCode;
+
+        if(!CountryCode.startsWith("+")){
+            CountryCode = "+"+CountryCode;
         }
 
         String phoneNumber = PhoneNumber.trim();

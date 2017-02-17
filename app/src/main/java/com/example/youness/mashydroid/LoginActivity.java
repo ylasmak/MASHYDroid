@@ -552,10 +552,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
             else
             {
-                if(mAction.equals("Login"))
+                if(mAction.equals("Login") || mAction.equals("register"))
                 {
                     mLoginFormView.setVisibility(View.VISIBLE);
                 }
+
+
 
                if(UserContext.CurrentInstance().CountryCallingCode!=null) {
                    mCountryCode.setText(UserContext.CurrentInstance().CountryCallingCode);

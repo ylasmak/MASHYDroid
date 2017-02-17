@@ -21,12 +21,12 @@ public class PhoneNumberHelper {
 
             if(result.startsWith("+"))
             {
-                result = "00"+result.substring(1,result.length());
+                result = "+"+result.substring(1,result.length());
 
             }
             if(result.startsWith("0") && !result.startsWith("00"))
             {
-                result = "00"+ UserContext.CurrentInstance().CountryCallingCode +result.substring(1,result.length());
+                result = "+"+ UserContext.CurrentInstance().CountryCallingCode +result.substring(1,result.length());
 
             }
 
