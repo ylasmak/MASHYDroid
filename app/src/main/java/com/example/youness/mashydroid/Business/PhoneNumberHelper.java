@@ -1,5 +1,7 @@
 package com.example.youness.mashydroid.Business;
 
+import android.telephony.SmsManager;
+
 /**
  * Created by youness on 15/02/2017.
  */
@@ -37,5 +39,14 @@ public class PhoneNumberHelper {
         {
             return null;
         }
+
     }
+
+    public  static void SendSMS(String PhoneNumber,String message)
+    {
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(PhoneNumber, null, message, null, null);
+    }
+
+
 }

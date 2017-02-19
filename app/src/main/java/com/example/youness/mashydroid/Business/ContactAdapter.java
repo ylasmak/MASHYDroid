@@ -56,11 +56,9 @@ public class ContactAdapter extends ArrayAdapter<UserPhoneNumber> {
                 LinearLayout layout = (LinearLayout)v;
                 layout.getChildCount();
                 TextView tvNumber = (TextView) v.findViewById(R.id.Number);
-
-
                 String message =getContext().getString( R.string.Send_invitation);
                 message = message +layout.getTag().toString();
-                ConfirmationMessage.newInstance(message,tvNumber.getText().toString()).show(((Activity)getContext()).getFragmentManager(),"Notify");
+                ConfirmationMessage.newInstance(message,PhoneNumberHelper.GetFullPhoneNumber(tvNumber.getText().toString())).show(((Activity)getContext()).getFragmentManager(),"Notify");
 
 
             }

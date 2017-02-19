@@ -10,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +26,8 @@ import java.util.HashMap;
 
 public class HomeActivity extends AppCompatActivity implements ConfirmationMessage.NoticeDialogListener,
         ServiceProvider.ServiceProviderCallBack {
+
+    private  String phoneNumber;
 
     /** Called when the activity is first created. */
     @Override
@@ -99,6 +102,8 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
         params.put("OriginRequestPhoneNumber",phoneNumber);
         params.put("InvitationPhoneNunber",MyPhoneNumber);
 
+        this.phoneNumber = phoneNumber;
+
         ServiceProvider service = new ServiceProvider("POST","requestInvitation",params,this);
         service.execute();
 
@@ -117,22 +122,22 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
                int sucess = result.getInt("sucess");
                if(sucess==1)
                {
-                   ShouwMessage("OK");
+                   ShouMessage(String.format(getString(R.string.invitation_confirmation), this.phoneNumber));
                }
                if(sucess ==0)
                {
                    // Internal error
-                   ShouwMessage("OK");
+                   ShouMessage(getString(R.string.invitation_error));
                }
                if(sucess == -1)
                {
                    //user alredy invited
-                   ShouwMessage("OK");
+                   ShouMessage(String.format(getString(R.string.invitation_exist), this.phoneNumber));
                }
                if(sucess == -2)
                {
                    //user not exist in plateforme
-                   ShouwMessage("OK");
+                   ShouConfirmation(String.format(getString(R.string.contact_not_exist_in_system), this.phoneNumber));
                }
 
            }
@@ -145,11 +150,11 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
     }
 
 
-    private  void ShouwMessage(String message)
+    private  void ShouMessage(String message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message)
-                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
                     }
@@ -157,4 +162,30 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
         // Create the AlertDialog object and return it
          builder.create().show();
     }
+
+
+    private  void ShouConfirmation(String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message)
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ((HomeActivity)dialog).sendSMS();
+                    }
+                }) .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        // Create the AlertDialog object and return it
+        builder.create().show();
+    }
+
+    private  void sendSMS()
+    {
+        PhoneNumberHelper.SendSMS(this.phoneNumber,"");
+    }
+
+
 }
+

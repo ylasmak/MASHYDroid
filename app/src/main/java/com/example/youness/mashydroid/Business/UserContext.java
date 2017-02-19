@@ -45,19 +45,25 @@ public class UserContext {
 
     public  String getFullPhoneNumber()
     {
-       if(CountryCode == null)
+       if(CountryCallingCode == null)
        {
            return null ;
        }
+        if(PhoneNumber.startsWith("+"))
+        {
+            return PhoneNumber;
+        }
         String result="" ;
-        String CountryCode = CountryCallingCode.trim();
-        if(CountryCode.startsWith("00")) {
-            CountryCode = CountryCode.substring(2,CountryCode.length());
-            CountryCode = "+"+CountryCode;
+        if(CountryCallingCode != null) {
+            String CountryCode = CountryCallingCode.trim();
+        }
+        if(CountryCallingCode.startsWith("00")) {
+            CountryCallingCode = CountryCallingCode.substring(2,CountryCallingCode.length());
+            CountryCallingCode = "+"+CountryCallingCode;
         }
 
-        if(!CountryCode.startsWith("+")){
-            CountryCode = "+"+CountryCode;
+        if(!CountryCallingCode.startsWith("+")){
+            CountryCallingCode = "+"+CountryCallingCode;
         }
 
         String phoneNumber = PhoneNumber.trim();
@@ -66,7 +72,7 @@ public class UserContext {
             phoneNumber = phoneNumber.substring(1,phoneNumber.length());
         }
 
-        result = CountryCode+phoneNumber;
+        result = CountryCallingCode+phoneNumber;
 
 
         return  result;

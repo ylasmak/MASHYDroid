@@ -552,9 +552,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
             else
             {
-                if(mAction.equals("Login") || mAction.equals("register"))
+                if(mAction.equals("Login") || mAction.equals("Register"))
                 {
                     mLoginFormView.setVisibility(View.VISIBLE);
+                    showProgress(false);
                 }
 
 
