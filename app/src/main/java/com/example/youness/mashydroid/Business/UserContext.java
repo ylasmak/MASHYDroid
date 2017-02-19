@@ -1,6 +1,7 @@
 package com.example.youness.mashydroid.Business;
 
 import com.example.youness.mashydroid.Model.UserContact;
+import com.example.youness.mashydroid.Model.UserPhoneNumber;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
@@ -45,8 +46,8 @@ public class UserContext {
 
     public  String getFullPhoneNumber()
     {
-        return "+212655994768";
-     /*  if(CountryCallingCode == null)
+        //return "+212655994768";
+       if(CountryCallingCode == null)
        {
            return null ;
        }
@@ -77,7 +78,18 @@ public class UserContext {
 
 
         return  result;
-        */
+
+    }
+
+    ArrayList<UserPhoneNumber> _arrayOfUsers ;
+
+    public ArrayList<UserPhoneNumber> getListContact()
+    {
+        if(_arrayOfUsers == null)
+        {
+            _arrayOfUsers = new ArrayList<UserPhoneNumber>();
+        }
+        return _arrayOfUsers;
     }
 
     public double[] Location;

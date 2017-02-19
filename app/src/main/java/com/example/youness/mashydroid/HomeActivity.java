@@ -2,11 +2,14 @@ package com.example.youness.mashydroid;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,9 +24,13 @@ import com.example.youness.mashydroid.Business.MashyDroidBusiness;
 import com.example.youness.mashydroid.Business.PhoneNumberHelper;
 import com.example.youness.mashydroid.Business.ServiceProvider;
 import com.example.youness.mashydroid.Business.UserContext;
+import com.example.youness.mashydroid.Model.UserPhoneNumber;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class HomeActivity extends AppCompatActivity implements ConfirmationMessage.NoticeDialogListener,
@@ -73,8 +80,52 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
 
         // new MashyDroidBusiness().MashyProcessing(this);
 
+        loadContactList();
+
     }
 
+    public void loadContactList()
+    {
+        ArrayList<UserPhoneNumber> arrayOfUsers = new ArrayList<UserPhoneNumber>();
+
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        if (cur.getCount() > 0) {
+            while (cur.moveToNext()) {
+                String id = cur.getString(
+                        cur.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = cur.getString(cur.getColumnIndex(
+                        ContactsContract.Contacts.DISPLAY_NAME));
+
+                if (cur.getInt(cur.getColumnIndex(
+                        ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Cursor pCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
+                            new String[]{id}, null);
+                    while (pCur.moveToNext()) {
+                        String phoneNo = pCur.getString(pCur.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        arrayOfUsers.add(new UserPhoneNumber(name,phoneNo));
+                    }
+
+                    pCur.close();
+                }
+            }
+        }
+
+        Collections.sort(arrayOfUsers, new Comparator<UserPhoneNumber>() {
+            @Override
+            public int compare(UserPhoneNumber user1, UserPhoneNumber user2)
+            {
+
+                return  user1.FullName.compareTo(user2.FullName);
+            }
+        });
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
       //  getMenuInflater().inflate(R.menu.menu_main, menu);
