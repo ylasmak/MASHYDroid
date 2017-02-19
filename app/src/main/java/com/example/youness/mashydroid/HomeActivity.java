@@ -2,6 +2,7 @@ package com.example.youness.mashydroid;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -170,7 +172,8 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
         builder.setMessage(message)
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ((HomeActivity)dialog).sendSMS();
+                    Context baseContext   =((ContextThemeWrapper)(((AlertDialog) dialog).getContext())).getBaseContext();
+                        ((HomeActivity)baseContext).sendSMS();
                     }
                 }) .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -183,7 +186,8 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
 
     private  void sendSMS()
     {
-        PhoneNumberHelper.SendSMS(this.phoneNumber,"");
+        String message = getString(R.string.Send_sms_invitation);
+        PhoneNumberHelper.SendSMS(this.phoneNumber,message);
     }
 
 

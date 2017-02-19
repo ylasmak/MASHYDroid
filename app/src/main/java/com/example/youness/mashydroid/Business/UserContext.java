@@ -45,7 +45,8 @@ public class UserContext {
 
     public  String getFullPhoneNumber()
     {
-       if(CountryCallingCode == null)
+        return "+212655994768";
+     /*  if(CountryCallingCode == null)
        {
            return null ;
        }
@@ -76,6 +77,7 @@ public class UserContext {
 
 
         return  result;
+        */
     }
 
     public double[] Location;

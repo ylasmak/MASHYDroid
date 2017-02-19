@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.example.youness.mashydroid.Business.UserContext;
 import com.example.youness.mashydroid.Model.UserContact;
@@ -35,6 +36,7 @@ public class VerifyOTP extends AppCompatActivity {
 
     private EditText mCode;
     private UserLoginTask mAuthTask = null;
+    private LinearLayout  errorLayout = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,10 @@ public class VerifyOTP extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mCode = (EditText) findViewById(R.id.Code);
+        errorLayout = (LinearLayout)findViewById(R.id.displayErrorVerifcation) ;
+        errorLayout.setVisibility(View.INVISIBLE);
+
+
         Button mEmailSignInButton = (Button) findViewById(R.id.verify_in_button);
         mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +57,23 @@ public class VerifyOTP extends AppCompatActivity {
                 attemptVerify(mCode.getText().toString());
             }
         });
+
+        Button requestNewCode = (Button) findViewById(R.id.requestNewCode);
+        requestNewCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptNewCode();
+            }
+        });
+    }
+    private  void attemptNewCode(){
+        Intent intent = new Intent(this, HomeActivity.class);
+        //startActivity(intent);
+        if( UserContext.CurrentInstance().PhoneNumber != null) {
+            //  showProgress(true);
+            mAuthTask = new UserLoginTask(intent,"NEWCODE");
+            mAuthTask.execute();
+        }
     }
 
     private void attemptVerify(String code) {
@@ -68,6 +91,7 @@ public class VerifyOTP extends AppCompatActivity {
 
         private  final Intent mintent;
         private  final  String  otpCode;
+        private  JSONObject jsonResult;
 
         UserLoginTask(  Intent intent,String code) {
             mintent = intent;
@@ -81,6 +105,11 @@ public class VerifyOTP extends AppCompatActivity {
             try {
 
                 URL  url = new URL(UserContext.CurrentInstance().ServerUrl.concat("verify"));
+                if(otpCode.equals("NEWCODE"))
+                {
+                      url = new URL(UserContext.CurrentInstance().ServerUrl.concat("requestNewCode"));
+                }
+
 
                 String urlParameters = GetParameter();
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -114,12 +143,12 @@ public class VerifyOTP extends AppCompatActivity {
                 rd.close();
                 String result = response.toString();
 
-                JSONObject topLevel = new JSONObject(result);
-                int sucess = topLevel.getInt("sucess");
+                jsonResult = new JSONObject(result);
+                int sucess = jsonResult.getInt("sucess");
                 if(sucess > 0) {
 
                     UserContext.CurrentInstance().Auth = true;
-                    JSONArray cercle = topLevel.getJSONObject("message").getJSONArray("cercle");
+                    JSONArray cercle = jsonResult.getJSONObject("message").getJSONArray("cercle");
 
                     if(cercle != null && cercle.length() > 0)
                     {
@@ -149,13 +178,32 @@ public class VerifyOTP extends AppCompatActivity {
         protected void onPostExecute(final Boolean success) {
 
             //  showProgress(false);
+            try{
+                if (success) {
+                   if(!this.otpCode.equals("NEWCODE")) {
+                       SavePhoneNumber(UserContext.CurrentInstance().PhoneNumber);
+                       startActivity(mintent);
+                   }
+                    else
+                   {
+                       mCode.setText("");
+                       errorLayout.setVisibility(View.INVISIBLE);
 
-            if (success) {
-                //Intent intent = new Intent(this, HomeActivity.class);
-                SavePhoneNumber(UserContext.CurrentInstance().PhoneNumber);
-                startActivity(mintent);
-                //finish();
+                   }
+                    //finish();
+                }
+                else
+                {
+                    int result = jsonResult.getInt("sucess");
+                    if(result == -2)
+                    {
+                        errorLayout.setVisibility(View.VISIBLE);
+                    }
+                }
             }
+            catch (Exception e) {
+            }
+
         }
 
         @Override
