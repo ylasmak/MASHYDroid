@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.youness.mashydroid.Business.ContactAdapter;
+import com.example.youness.mashydroid.Business.UserContext;
 import com.example.youness.mashydroid.Model.UserContact;
 import com.example.youness.mashydroid.Model.UserPhoneNumber;
 
@@ -45,46 +46,8 @@ public class PhoneContact extends Fragment{
         try {
 
 
-            ArrayList<UserPhoneNumber> arrayOfUsers = new ArrayList<UserPhoneNumber>();
+            ArrayList<UserPhoneNumber> arrayOfUsers = UserContext.CurrentInstance().getListContact();
 
-            ContentResolver cr = getActivity().getContentResolver();
-            Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
-                    null, null, null, null);
-
-            if (cur.getCount() > 0) {
-                while (cur.moveToNext()) {
-                    String id = cur.getString(
-                            cur.getColumnIndex(ContactsContract.Contacts._ID));
-                    String name = cur.getString(cur.getColumnIndex(
-                            ContactsContract.Contacts.DISPLAY_NAME));
-
-                    if (cur.getInt(cur.getColumnIndex(
-                            ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-                        Cursor pCur = cr.query(
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
-                                new String[]{id}, null);
-                        while (pCur.moveToNext()) {
-                            String phoneNo = pCur.getString(pCur.getColumnIndex(
-                                    ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            arrayOfUsers.add(new UserPhoneNumber(name,phoneNo));
-
-                        }
-
-                        pCur.close();
-                    }
-                }
-            }
-
-            Collections.sort(arrayOfUsers, new Comparator<UserPhoneNumber>() {
-                @Override
-                public int compare(UserPhoneNumber user1, UserPhoneNumber user2)
-                {
-
-                    return  user1.FullName.compareTo(user2.FullName);
-                }
-            });
             ContactAdapter adapter = new ContactAdapter(this.getContext(), arrayOfUsers);
             ListView listView = (ListView) v.findViewById(R.id.listContact);
             listView.setAdapter(adapter);

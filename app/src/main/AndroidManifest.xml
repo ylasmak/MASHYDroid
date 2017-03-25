@@ -46,7 +46,7 @@
             android:value="@string/google_maps_key" />
         <meta-data
             android:name="mashy_server_url"
-            android:value="http://10.0.2.2:8081/" />
+            android:value="http://mashy.ddns.net/" />
 
         <activity
             android:name=".HomeActivity"
@@ -55,7 +55,8 @@
         <activity
             android:name=".VerifyOTP"
             android:label="@string/title_activity_verify_otp"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

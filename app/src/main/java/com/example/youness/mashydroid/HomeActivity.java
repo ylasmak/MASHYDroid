@@ -92,12 +92,16 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
 
+        ArrayList<String> tmp = new ArrayList<String>();
+
         if (cur.getCount() > 0) {
             while (cur.moveToNext()) {
                 String id = cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(
                         ContactsContract.Contacts.DISPLAY_NAME));
+
+                tmp.clear();
 
                 if (cur.getInt(cur.getColumnIndex(
                         ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
@@ -109,7 +113,11 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
                     while (pCur.moveToNext()) {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(
                                 ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        arrayOfUsers.add(new UserPhoneNumber(name,phoneNo));
+
+                       if(!tmp.contains(PhoneNumberHelper.GetFullPhoneNumber( phoneNo))) {
+                           arrayOfUsers.add(new UserPhoneNumber(name, phoneNo));
+                           tmp.add(PhoneNumberHelper.GetFullPhoneNumber( phoneNo));
+                       }
                     }
 
                     pCur.close();
@@ -125,6 +133,8 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
                 return  user1.FullName.compareTo(user2.FullName);
             }
         });
+
+        UserContext.CurrentInstance().getListContact().addAll(arrayOfUsers);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
