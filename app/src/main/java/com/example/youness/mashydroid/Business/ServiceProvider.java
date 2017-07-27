@@ -24,7 +24,7 @@ public class ServiceProvider extends AsyncTask<Void, Void, Boolean> {
 
    private String _method;
    private HashMap<String,String> _params;
-   private  String _action;
+    private  String _action;
    private  JSONObject _serviceResult;
    private ServiceProviderCallBack _origin;
 
@@ -34,8 +34,6 @@ public class ServiceProvider extends AsyncTask<Void, Void, Boolean> {
 
     }
 
-
-
     public  ServiceProvider(String method, String action , HashMap<String,String> params, ServiceProviderCallBack origin)
     {
         _method = method;
@@ -43,6 +41,8 @@ public class ServiceProvider extends AsyncTask<Void, Void, Boolean> {
         _action = action;
         _origin = origin;
     }
+
+
 
     @Override
     protected Boolean doInBackground(Void... params) {

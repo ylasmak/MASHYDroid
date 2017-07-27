@@ -78,7 +78,8 @@ public class HomeActivity extends AppCompatActivity implements ConfirmationMessa
             }
         });
 
-        // new MashyDroidBusiness().MashyProcessing(this);
+         new MashyDroidBusiness().MashyProcessing(this);
+
 
         loadContactList();
 

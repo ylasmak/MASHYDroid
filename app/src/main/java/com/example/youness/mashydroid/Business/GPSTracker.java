@@ -71,12 +71,14 @@ public class GPSTracker implements LocationListener {
             // getting network status
             isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            isGPSEnabled = false;
+
+            isGPSEnabled =false;
             isNetworkEnabled = false;
 
             if (!isGPSEnabled && !isNetworkEnabled) {
 
-                Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+                turnGPSOn();
+               /* Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
                 intent.putExtra("enabled", true);
                 this.mContext.sendBroadcast(intent);
 
@@ -89,6 +91,7 @@ public class GPSTracker implements LocationListener {
                     this.mContext.sendBroadcast(poke);
 
                 }
+                */
 
             }
                 else {
@@ -237,6 +240,31 @@ public class GPSTracker implements LocationListener {
 
         // Showing Alert Message
         alertDialog.show();
+    }
+
+
+    private void turnGPSOn(){
+        String provider = Settings.Secure.getString( this.mContext.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if(!provider.contains("gps")){ //if gps is disabled
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            this.mContext.sendBroadcast(poke);
+        }
+    }
+
+    private void turnGPSOff(){
+        String provider = Settings.Secure.getString( this.mContext.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if(provider.contains("gps")){ //if gps is enabled
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            this.mContext.sendBroadcast(poke);
+        }
     }
 
 }

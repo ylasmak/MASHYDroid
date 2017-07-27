@@ -117,7 +117,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             TelephonyManager tMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
 
             UserContext.CurrentInstance().CountryCode =tMgr.getSimCountryIso();
-            UserContext.CurrentInstance().PhoneNumber = GetPhoneNumber();
+
+           // UserContext.CurrentInstance().PhoneNumber = GetPhoneNumber();
+
+            UserContext.CurrentInstance().PhoneNumber = "655994768";
+
             UserContext.CurrentInstance().PhoneSerialNumber = tMgr.getSimSerialNumber();
             attemptCount();
             attemptLogin();
@@ -258,7 +262,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         boolean success = true;
 
         UserContext.CurrentInstance().Login = mEmailView.getText().toString();
+
+
         UserContext.CurrentInstance().PhoneNumber = mPphoneNumber.getText().toString();
+
         UserContext.CurrentInstance().CountryCallingCode =  mCountryCode.getText().toString().trim();
 
 
